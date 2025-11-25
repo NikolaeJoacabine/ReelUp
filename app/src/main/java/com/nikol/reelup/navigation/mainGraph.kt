@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.nikol.home_api.destination.HomeGraph
+import com.nikol.home_impl.presentation.navigation.homeGraph
 import com.nikol.nav_impl.commonDestination.MainGraph
 
 
@@ -28,7 +29,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-
+                homeGraph()
             }
         }
     }

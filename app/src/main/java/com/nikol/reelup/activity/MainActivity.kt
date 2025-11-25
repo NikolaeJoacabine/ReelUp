@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.nikol.auth_api.Auth
 import com.nikol.auth_impl.presentation.nav.authFeature
+import com.nikol.reelup.navigation.mainGraph
 import com.nikol.reelup.ui.theme.ReelUpTheme
 
 class MainActivity : ComponentActivity() {
@@ -25,6 +26,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
                 ){
                     authFeature(navController)
+                    mainGraph(navController)
                 }
             }
         }

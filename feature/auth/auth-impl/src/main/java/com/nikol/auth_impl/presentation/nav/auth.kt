@@ -14,6 +14,7 @@ import com.nikol.auth_impl.presentation.di.StartPageComponent
 import com.nikol.auth_impl.presentation.ui.screen.StartScreen
 import com.nikol.di.scope.LinkedContext
 import com.nikol.di.scope.ScopedContext
+import com.nikol.nav_impl.commonDestination.MainGraph
 
 fun NavGraphBuilder.authFeature(navController: NavController) {
     composable<Auth> {
@@ -27,7 +28,14 @@ fun NavGraphBuilder.authFeature(navController: NavController) {
                 composable<StartPage> {
                     LinkedContext<StartPageComponent> {
                         StartScreen(
-                            onMain = { },
+                            onMain = {
+                                navController.navigate(MainGraph) {
+                                    popUpTo(0) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                }
+                            },
                         )
                     }
                 }
