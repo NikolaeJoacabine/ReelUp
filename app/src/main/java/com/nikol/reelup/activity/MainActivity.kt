@@ -10,12 +10,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.nikol.auth_api.Auth
 import com.nikol.auth_impl.presentation.nav.authFeature
+import com.nikol.nav_impl.navApi.NavApi
+import com.nikol.nav_impl.navApi.RootFeatureApi
 import com.nikol.reelup.navigation.mainGraph
 import com.nikol.reelup.ui.theme.ReelUpTheme
+import org.koin.android.ext.android.getKoin
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val listFeatures = getKoin().getAll<RootFeatureApi>()
         enableEdgeToEdge()
         setContent {
             ReelUpTheme {
@@ -24,9 +28,11 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                     startDestination = Auth,
                     modifier = Modifier.fillMaxSize()
-                ){
-                    authFeature(navController)
+                ) {
                     mainGraph(navController)
+                    listFeatures.forEach {
+                        it.registerFeature(navController, this)
+                    }
                 }
             }
         }

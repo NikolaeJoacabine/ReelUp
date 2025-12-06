@@ -2,15 +2,15 @@ package com.nikol.viewmodel.intentDsl
 
 import com.nikol.viewmodel.UiIntent
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.time.Duration
 
 @IntentDslMarker
@@ -40,15 +40,29 @@ open class IntentHandlerBuilder<I : UiIntent>() {
 
     fun handleConcurrent(block: suspend (I) -> Unit) =
         setHandler(block) { f, h, s ->
-            f.collectLatest { intent ->
+            f.collect { intent ->
                 s.launch { h(intent) }
             }
         }
 
     fun handleLatest(block: suspend (I) -> Unit) =
-        setHandler(block) { f, h, _ ->
-            f.collectLatest { intent ->
-                h(intent)
+        setHandler(block) { f, h, s ->
+            var currentJob: Job? = null
+            f.collect { intent ->
+                currentJob?.cancel()
+                currentJob = s.launch { h(intent) }
+            }
+        }
+
+    fun handleDropWhileBusy(block: suspend (I) -> Unit) =
+        setHandler(block) { f, h, s ->
+            var currentJob: Job? = null
+            f.collect { intent ->
+                if (currentJob?.isActive != true) {
+                    currentJob = s.launch {
+                        h(intent)
+                    }
+                }
             }
         }
 
@@ -58,7 +72,7 @@ open class IntentHandlerBuilder<I : UiIntent>() {
 
     fun transform(operator: (Flow<I>) -> Flow<I>) {
         val old = transforms
-        transforms = { old(operator(it)) }
+        transforms = { flow -> operator(old(flow)) }
     }
 
     fun build(upstream: Flow<I>): RegisteredIntentHandler<I> {
@@ -92,12 +106,10 @@ fun <I : UiIntent> IntentHandlerBuilder<I>.debounce(timeMillis: Long) =
 fun <I : UiIntent> IntentHandlerBuilder<I>.debounce(duration: Duration) =
     transform { it.debounce(duration) }
 
+inline fun <I : UiIntent> IntentHandlerBuilder<I>.filter(
+    crossinline predicate: suspend (I) -> Boolean
+) = transform { flow -> flow.filter(predicate) }
 
-fun <I : UiIntent> IntentHandlerBuilder<I>.handleIn(
-    dispatcher: CoroutineDispatcher,
-    block: suspend (I) -> Unit,
-) {
-    handleConsistently { intent ->
-        withContext(dispatcher) { block(intent) }
-    }
-}
+fun <I : UiIntent> IntentHandlerBuilder<I>.distinct() =
+    transform { flow -> flow.distinctUntilChanged() }
+

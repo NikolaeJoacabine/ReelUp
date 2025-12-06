@@ -1,17 +1,15 @@
 package com.nikol.reelup.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -22,12 +20,17 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.nikol.home_api.destination.HomeGraph
-import com.nikol.home_impl.presentation.navigation.homeGraph
 import com.nikol.nav_impl.commonDestination.MainGraph
+import com.nikol.nav_impl.navApi.MainFeatureApi
+import org.koin.compose.getKoin
 
 
 fun NavGraphBuilder.mainGraph(navController: NavController) {
     composable<MainGraph> {
+
+        val koin = getKoin()
+        val mainFeatures = remember { koin.getAll<MainFeatureApi>() }
+
         val nestedNavController = rememberNavController()
         Scaffold(
             bottomBar = {
@@ -41,7 +44,9 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                homeGraph()
+                mainFeatures.forEach {
+                    it.registerFeature(navController, this)
+                }
             }
         }
     }
@@ -50,11 +55,7 @@ fun NavGraphBuilder.mainGraph(navController: NavController) {
 @Composable
 fun MainGraphBottomBar(navController: NavController) {
     val mainTabs = remember { listOf(BottomBarTab.Home) }
-    BottomAppBar(
-        modifier = Modifier
-            .height(80.dp)
-            .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
-    ) {
+    BottomAppBar {
         mainTabs.forEach { topLevelRoute ->
             val backStackEntry = navController.currentBackStackEntryAsState()
             val currentDestination = backStackEntry.value?.destination
@@ -72,8 +73,15 @@ fun MainGraphBottomBar(navController: NavController) {
                         restoreState = true
                     }
                 },
-                icon = {},
-                label = {}
+                icon = {
+                    Icon(
+                        imageVector = topLevelRoute.icon,
+                        contentDescription = null
+                    )
+                },
+                label = {
+                    Text(topLevelRoute.title)
+                }
             )
         }
     }

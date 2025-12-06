@@ -22,4 +22,6 @@ dependencies {
     implementation(projects.feature.auth.authApi)
     implementation(projects.feature.home.homeApi)
     implementation(projects.feature.home.homeImpl)
+
+    implementation(libs.androidx.material.icons.extended)
 }
