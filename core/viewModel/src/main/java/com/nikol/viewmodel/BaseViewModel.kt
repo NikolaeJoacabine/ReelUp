@@ -1,5 +1,6 @@
 package com.nikol.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nikol.nav_api.Router
@@ -18,7 +19,16 @@ abstract class BaseViewModel<INTENT : UiIntent, STATE : UiState, EFFECT : UiEffe
     private val _effect = Channel<EFFECT>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
 
+    protected open fun onIntent(intent: INTENT) {
+        Log.d("MVI", "Intent: $intent")
+    }
+
+    protected open fun onStateChanged(oldState: STATE, newState: STATE) {
+        Log.d("MVI", "State change: $oldState -> $newState")
+    }
+
     fun setIntent(intent: INTENT) {
+        onIntent(intent)
         viewModelScope.launch { _intent.emit(intent) }
     }
 
@@ -32,7 +42,11 @@ abstract class BaseViewModel<INTENT : UiIntent, STATE : UiState, EFFECT : UiEffe
     protected abstract fun createInitialState(): STATE
 
     protected fun setState(reducer: STATE.() -> STATE) {
-        _uiState.update(reducer)
+        _uiState.update { old ->
+            val new = old.reducer()
+            if (old != new) onStateChanged(old, new)
+            new
+        }
     }
 
     protected fun setEffect(builder: () -> EFFECT) {
