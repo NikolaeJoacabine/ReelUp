@@ -10,6 +10,7 @@ class IntentBuilder<INTENT : UiIntent>(
 ) {
     val handlers = mutableListOf<RegisteredIntentHandler<INTENT>>()
 
+
     @Suppress("UNCHECKED_CAST")
     inline fun <reified I : INTENT> on(
         configure: IntentHandlerBuilder<I>.() -> Unit
@@ -18,6 +19,19 @@ class IntentBuilder<INTENT : UiIntent>(
         val intentFlow = upstream.filterIsInstance<I>()
         val registered = builder.build(intentFlow)
 
+        handlers.add(
+            registered as RegisteredIntentHandler<INTENT>
+        )
+    }
+
+    inline fun <reified T> listen(
+        source: Flow<T>,
+        configure: IntentHandlerBuilder<T>.() -> Unit
+    ) {
+        val builder = IntentHandlerBuilder<T>().apply(configure)
+        val registered = builder.build(source)
+
+        @Suppress("UNCHECKED_CAST")
         handlers.add(
             registered as RegisteredIntentHandler<INTENT>
         )

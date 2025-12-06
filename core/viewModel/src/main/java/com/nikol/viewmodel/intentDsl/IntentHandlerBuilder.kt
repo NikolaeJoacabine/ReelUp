@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration
 
 @IntentDslMarker
-open class IntentHandlerBuilder<I : UiIntent>() {
+open class IntentHandlerBuilder<I>() {
 
     private var transforms: (Flow<I>) -> Flow<I> = { it }
     private var handler: (suspend (I) -> Unit)? = null
