@@ -8,17 +8,22 @@ import com.nikol.nav_api.Router
 import com.nikol.viewmodel.BaseViewModel
 import com.nikol.viewmodel.intentDsl.filter
 import com.nikol.viewmodel.intentDsl.intents
-import com.nikol.viewmodel.state.stateMachine
 
 interface TypeContentRouter : Router {
     fun navigateToMovie()
     fun navigateToTV()
 }
 
+sealed interface HomeEvent {
+    data class ChangeContent(val typeContent: TypeContent) : HomeEvent
+}
+
 class HomePageViewModel : BaseViewModel<HomeIntent, HomeState, HomeEffect, TypeContentRouter>() {
     override fun createInitialState() = HomeState(
         typeContent = TypeContent.Movie
     )
+
+
 
     override fun handleIntents() = intents {
         on<HomeIntent.ChangeTypeContent> {

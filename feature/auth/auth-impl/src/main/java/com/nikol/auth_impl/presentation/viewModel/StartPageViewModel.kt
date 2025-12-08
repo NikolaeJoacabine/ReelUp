@@ -12,20 +12,12 @@ import com.nikol.auth_impl.presentation.mvi.state.StartPageState
 import com.nikol.nav_api.Router
 import com.nikol.viewmodel.BaseViewModel
 import com.nikol.viewmodel.intentDsl.intents
-import com.nikol.viewmodel.state.stateMachine
 
 interface StartPageRouter : Router {
     fun main()
 }
 
 typealias StartPageComponent = BaseViewModel<StartPageIntent, StartPageState, StartPageEffect, StartPageRouter>
-
-
-sealed interface SessionEvent {
-    data object Start : SessionEvent
-    data object Success : SessionEvent
-    data object Failure : SessionEvent
-}
 
 class StartPageViewModel(
     private val createGuestSessionUseCase: CreateGuestSessionUseCase,
@@ -39,25 +31,6 @@ class StartPageViewModel(
         password = "",
         showPassword = false
     )
-
-    private val sessionMachine = stateMachine<CreateSessionState, SessionEvent>(
-        initial = CreateSessionState.Initial,
-        bindToUi = { s -> setState { copy(sessionState = s) } }
-    ) {
-        inState<CreateSessionState.Initial> {
-            goto<SessionEvent.Start>(CreateSessionState.Loading)
-        }
-
-        inState<CreateSessionState.Loading> {
-            goto<SessionEvent.Success>(CreateSessionState.Initial)
-            goto<SessionEvent.Failure>(CreateSessionState.Error)
-        }
-
-        inState<CreateSessionState.Loading> {
-            goto<SessionEvent.Success>(CreateSessionState.Initial)
-            goto<SessionEvent.Failure>(CreateSessionState.Error)
-        }
-    }
 
     override fun handleIntents() = intents {
         on<StartPageIntent.ContinueWithGuestAccount> {
@@ -77,17 +50,17 @@ class StartPageViewModel(
 
         on<StartPageIntent.LogIn> {
             handleDropWhileBusy {
-                sessionMachine.process(SessionEvent.Start)
+                setState { copy(sessionState = CreateSessionState.Loading) }
                 val userCredential = UserCredential(
                     login = UserLogin(uiState.value.login),
                     password = UserPassword(uiState.value.password)
                 )
                 createSessionUseCase(userCredential).fold(
                     ifLeft = {
-                        sessionMachine.process(SessionEvent.Failure)
+                        setState { copy(sessionState = CreateSessionState.Error) }
                     },
                     ifRight = {
-                        sessionMachine.process(SessionEvent.Success)
+                        setState { copy(sessionState = CreateSessionState.Initial) }
                         navigate { main() }
                     }
                 )
