@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlin.time.Duration
 
@@ -35,36 +36,32 @@ open class IntentHandlerBuilder<I>() {
         }
     }
 
-    fun handleConsistently(block: suspend (I) -> Unit) =
-        setHandler(block)
+    fun handleConsistently(block: suspend (I) -> Unit) = setHandler(block)
 
-    fun handleConcurrent(block: suspend (I) -> Unit) =
-        setHandler(block) { f, h, s ->
-            f.collect { intent ->
-                s.launch { h(intent) }
-            }
+    fun handleConcurrent(block: suspend (I) -> Unit) = setHandler(block) { f, h, s ->
+        f.collect { intent ->
+            s.launch { h(intent) }
         }
+    }
 
-    fun handleLatest(block: suspend (I) -> Unit) =
-        setHandler(block) { f, h, s ->
-            var currentJob: Job? = null
-            f.collect { intent ->
-                currentJob?.cancel()
-                currentJob = s.launch { h(intent) }
-            }
+    fun handleLatest(block: suspend (I) -> Unit) = setHandler(block) { f, h, s ->
+        var currentJob: Job? = null
+        f.collect { intent ->
+            currentJob?.cancel()
+            currentJob = s.launch { h(intent) }
         }
+    }
 
-    fun handleDropWhileBusy(block: suspend (I) -> Unit) =
-        setHandler(block) { f, h, s ->
-            var currentJob: Job? = null
-            f.collect { intent ->
-                if (currentJob?.isActive != true) {
-                    currentJob = s.launch {
-                        h(intent)
-                    }
+    fun handleDropWhileBusy(block: suspend (I) -> Unit) = setHandler(block) { f, h, s ->
+        var currentJob: Job? = null
+        f.collect { intent ->
+            if (currentJob?.isActive != true) {
+                currentJob = s.launch {
+                    h(intent)
                 }
             }
         }
+    }
 
     fun catch(errorHandler: (e: Exception) -> Unit) {
         catchAll = errorHandler
@@ -76,8 +73,7 @@ open class IntentHandlerBuilder<I>() {
     }
 
     fun build(upstream: Flow<I>): RegisteredIntentHandler<I> {
-        val finalHandler = handler
-            ?: throw IllegalStateException("call handle{} before build()")
+        val finalHandler = handler ?: throw IllegalStateException("call handle{} before build()")
 
         val transformed = transforms(upstream)
         val safeFlow = transformed.catch { e -> catchAll(e as Exception) }
@@ -99,17 +95,13 @@ open class IntentHandlerBuilder<I>() {
 
 
 @OptIn(FlowPreview::class)
-fun <I : UiIntent> IntentHandlerBuilder<I>.debounce(timeMillis: Long) =
-    transform { it.debounce(timeMillis) }
+fun IntentHandlerBuilder<*>.debounce(timeMillis: Long) = transform { it.debounce(timeMillis) }
 
 @OptIn(FlowPreview::class)
-fun <I : UiIntent> IntentHandlerBuilder<I>.debounce(duration: Duration) =
-    transform { it.debounce(duration) }
+fun IntentHandlerBuilder<*>.debounce(duration: Duration) = transform { it.debounce(duration) }
 
-inline fun <I : UiIntent> IntentHandlerBuilder<I>.filter(
+inline fun <reified I : UiIntent> IntentHandlerBuilder<I>.filter(
     crossinline predicate: suspend (I) -> Boolean
 ) = transform { flow -> flow.filter(predicate) }
 
-fun <I : UiIntent> IntentHandlerBuilder<I>.distinct() =
-    transform { flow -> flow.distinctUntilChanged() }
-
+fun IntentHandlerBuilder<*>.distinct() = transform { flow -> flow.distinctUntilChanged() }

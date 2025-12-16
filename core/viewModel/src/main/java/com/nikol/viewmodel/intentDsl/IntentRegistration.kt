@@ -8,9 +8,9 @@ import kotlinx.coroutines.launch
 fun <INTENT : UiIntent> BaseViewModel<INTENT, *, *, *>.intents(
     builder: IntentBuilder<INTENT>.() -> Unit
 ) {
-    val scope = this.viewModelScope
+    val scope = viewModelScope
 
-    val intentBuilder = IntentBuilder(this.intentFlow).apply(builder)
+    val intentBuilder = IntentBuilder(intentFlow).apply(builder)
     val handlers = intentBuilder.handlers
     handlers.forEach { registeredHandler ->
         scope.launch {
