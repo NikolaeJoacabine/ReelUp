@@ -14,6 +14,7 @@ import com.nikol.viewmodel.BaseViewModel
 import com.nikol.viewmodel.intentDsl.intents
 import com.nikol.viewmodel.intentDsl.on
 import com.nikol.viewmodel.intentDsl.onLatest
+import com.nikol.viewmodel.intentDsl.onSingle
 
 interface StartPageRouter : Router {
     fun main()
@@ -35,38 +36,34 @@ class StartPageViewModel(
     )
 
     override fun handleIntents() = intents {
-        setup<StartPageIntent.ContinueWithGuestAccount> {
-            handleDropWhileBusy {
-                setState { copy(guestButtonState = CreateSessionState.Loading) }
-                createGuestSessionUseCase(Unit).fold(
-                    ifLeft = {
-                        setState { copy(guestButtonState = CreateSessionState.Error) }
-                    },
-                    ifRight = {
-                        setState { copy(guestButtonState = CreateSessionState.Initial) }
-                        navigate { main() }
-                    }
-                )
-            }
+        onSingle<StartPageIntent.ContinueWithGuestAccount> {
+            setState { copy(guestButtonState = CreateSessionState.Loading) }
+            createGuestSessionUseCase(Unit).fold(
+                ifLeft = {
+                    setState { copy(guestButtonState = CreateSessionState.Error) }
+                },
+                ifRight = {
+                    setState { copy(guestButtonState = CreateSessionState.Initial) }
+                    navigate { main() }
+                }
+            )
         }
 
-        setup<StartPageIntent.LogIn> {
-            handleDropWhileBusy {
-                setState { copy(sessionState = CreateSessionState.Loading) }
-                val userCredential = UserCredential(
-                    login = UserLogin(uiState.value.login),
-                    password = UserPassword(uiState.value.password)
-                )
-                createSessionUseCase(userCredential).fold(
-                    ifLeft = {
-                        setState { copy(sessionState = CreateSessionState.Error) }
-                    },
-                    ifRight = {
-                        setState { copy(sessionState = CreateSessionState.Initial) }
-                        navigate { main() }
-                    }
-                )
-            }
+        onSingle<StartPageIntent.LogIn> {
+            setState { copy(sessionState = CreateSessionState.Loading) }
+            val userCredential = UserCredential(
+                login = UserLogin(uiState.value.login),
+                password = UserPassword(uiState.value.password)
+            )
+            createSessionUseCase(userCredential).fold(
+                ifLeft = {
+                    setState { copy(sessionState = CreateSessionState.Error) }
+                },
+                ifRight = {
+                    setState { copy(sessionState = CreateSessionState.Initial) }
+                    navigate { main() }
+                }
+            )
         }
 
         onLatest<StartPageIntent.CreateAccount> {
