@@ -6,4 +6,4 @@ import kotlinx.serialization.Serializable
 data object StartPage
 
 @Serializable
-data object LogIn
+data object CheckPage

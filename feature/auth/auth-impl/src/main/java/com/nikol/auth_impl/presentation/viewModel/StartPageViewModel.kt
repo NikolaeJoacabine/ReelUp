@@ -12,6 +12,8 @@ import com.nikol.auth_impl.presentation.mvi.state.StartPageState
 import com.nikol.nav_api.Router
 import com.nikol.viewmodel.BaseViewModel
 import com.nikol.viewmodel.intentDsl.intents
+import com.nikol.viewmodel.intentDsl.on
+import com.nikol.viewmodel.intentDsl.onLatest
 
 interface StartPageRouter : Router {
     fun main()
@@ -33,7 +35,7 @@ class StartPageViewModel(
     )
 
     override fun handleIntents() = intents {
-        on<StartPageIntent.ContinueWithGuestAccount> {
+        setup<StartPageIntent.ContinueWithGuestAccount> {
             handleDropWhileBusy {
                 setState { copy(guestButtonState = CreateSessionState.Loading) }
                 createGuestSessionUseCase(Unit).fold(
@@ -48,7 +50,7 @@ class StartPageViewModel(
             }
         }
 
-        on<StartPageIntent.LogIn> {
+        setup<StartPageIntent.LogIn> {
             handleDropWhileBusy {
                 setState { copy(sessionState = CreateSessionState.Loading) }
                 val userCredential = UserCredential(
@@ -67,26 +69,19 @@ class StartPageViewModel(
             }
         }
 
-        on<StartPageIntent.CreateAccount> {
-            handleLatest {
-                setEffect { StartPageEffect.GoToBrowser }
-            }
+        onLatest<StartPageIntent.CreateAccount> {
+            setEffect { StartPageEffect.GoToBrowser }
         }
-        on<StartPageIntent.ChangeLogin> {
-            handleConsistently { intent ->
-                setState { copy(login = intent.login) }
-            }
+        on<StartPageIntent.ChangeLogin> { intent ->
+            setState { copy(login = intent.login) }
+
         }
-        on<StartPageIntent.ChangePassword> {
-            handleConsistently { intent ->
-                setState { copy(password = intent.password) }
-            }
+        on<StartPageIntent.ChangePassword> { intent ->
+            setState { copy(password = intent.password) }
         }
 
         on<StartPageIntent.SwitchPasswordVisibility> {
-            handleConsistently {
-                setState { copy(showPassword = !showPassword) }
-            }
+            setState { copy(showPassword = !showPassword) }
         }
     }
 }

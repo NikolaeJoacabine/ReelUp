@@ -23,10 +23,8 @@ class HomePageViewModel : BaseViewModel<HomeIntent, HomeState, HomeEffect, TypeC
         typeContent = TypeContent.Movie
     )
 
-
-
     override fun handleIntents() = intents {
-        on<HomeIntent.ChangeTypeContent> {
+        setup<HomeIntent.ChangeTypeContent> {
             filter { intent -> intent.typeContent != uiState.value.typeContent }
             handleConsistently { intent ->
                 setState { copy(typeContent = intent.typeContent) }

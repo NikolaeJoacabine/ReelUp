@@ -4,6 +4,6 @@ import com.nikol.viewmodel.UiIntent
 import kotlinx.coroutines.CoroutineScope
 
 
-fun interface RegisteredIntentHandler<INTENT> {
+fun interface RegisteredIntentHandler<out INTENT> {
     suspend fun run(scope: CoroutineScope)
 }

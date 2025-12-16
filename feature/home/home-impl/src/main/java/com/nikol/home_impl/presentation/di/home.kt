@@ -3,6 +3,7 @@ package com.nikol.home_impl.presentation.di
 import com.nikol.home_impl.domain.useCase.GetPopularUseCase
 import com.nikol.home_impl.presentation.navigation.HomeFeature
 import com.nikol.home_impl.presentation.viewModel.HomePageViewModel
+import com.nikol.home_impl.presentation.viewModel.MovieViewModel
 import com.nikol.nav_impl.navApi.MainFeatureApi
 import com.nikol.nav_impl.navApi.NavApi
 import com.nikol.nav_impl.scopedNavigation.Component
@@ -20,7 +21,7 @@ internal class HomeComponent : Component()
 val movieModule = module {
     component { MovieComponent() }
     scope<MovieComponent> {
-
+        viewModelOf(::MovieViewModel)
     }
 }
 

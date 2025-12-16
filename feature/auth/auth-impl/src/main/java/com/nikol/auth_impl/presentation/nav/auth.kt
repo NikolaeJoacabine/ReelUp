@@ -6,11 +6,12 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import com.nikol.auth_api.Auth
 import com.nikol.auth_impl.presentation.di.AuthComponent
+import com.nikol.auth_impl.presentation.di.CheckPageComponent
 import com.nikol.auth_impl.presentation.di.StartPageComponent
+import com.nikol.auth_impl.presentation.ui.screen.CheckScreen
 import com.nikol.auth_impl.presentation.ui.screen.StartScreen
 import com.nikol.di.scope.LinkedContext
 import com.nikol.di.scope.ScopedContext
@@ -22,7 +23,7 @@ fun NavGraphBuilder.authFeature(navController: NavController) {
             val nestedNavController = rememberNavController()
             NavHost(
                 navController = nestedNavController,
-                startDestination = StartPage,
+                startDestination = CheckPage,
                 modifier = Modifier.fillMaxSize()
             ) {
                 composable<StartPage> {
@@ -36,6 +37,21 @@ fun NavGraphBuilder.authFeature(navController: NavController) {
                                     launchSingleTop = true
                                 }
                             },
+                        )
+                    }
+                }
+                composable<CheckPage> {
+                    LinkedContext<CheckPageComponent> {
+                        CheckScreen(
+                            navToStart = { nestedNavController.navigate(StartPage) },
+                            navToHome = {
+                                navController.navigate(MainGraph) {
+                                    popUpTo(0) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                }
+                            }
                         )
                     }
                 }
