@@ -1,5 +1,6 @@
 package com.nikol.auth_impl.data.repository
 
+import android.util.Log
 import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.right
@@ -27,6 +28,10 @@ import com.nikol.domainutil.ErrorMessage
 import com.nikol.security.model.SessionState
 import com.nikol.security.repository.TokenRepository
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
@@ -38,7 +43,7 @@ class AuthRepositoryImpl(
     override suspend fun getRequestToken(): ResponseRequestToken =
         authService.createRequestToken().mapLeft { error ->
             when (error) {
-                CreateRequestTokenErrorApi.InvalidApiKey -> BaseResponseError.Error(ErrorMessage(""))
+                CreateRequestTokenErrorApi.InvalidApiKey,
                 is CreateRequestTokenErrorApi.Unknow -> BaseResponseError.Error(ErrorMessage(""))
             }
         }.map {
@@ -51,18 +56,19 @@ class AuthRepositoryImpl(
             authService.validateRequestToken(credential = createSessionRequest.toData())
                 .mapLeft { error ->
                     when (error) {
-                        ValidateRequestTokenErrorApi.InvalidApiKey -> CreateSessionError.Error
-                        ValidateRequestTokenErrorApi.InvalidRequestToken -> CreateSessionError.Error
+                        ValidateRequestTokenErrorApi.InvalidApiKey,
+                        ValidateRequestTokenErrorApi.InvalidRequestToken,
                         is ValidateRequestTokenErrorApi.Unknow -> CreateSessionError.Error
+
                         ValidateRequestTokenErrorApi.InvalidCredential -> CreateSessionError.InvalidCredential
                     }
                 }.bind()
             val body = CreateSessionDTO(requestToken = createSessionRequest.requestToken.token)
             val token = authService.createSession(body).mapLeft { error ->
                 when (error) {
-                    CreateSessionErrorApi.InvalidApiKey -> CreateSessionError.Error
-                    CreateSessionErrorApi.RequestTokenNotFound -> CreateSessionError.Error
-                    CreateSessionErrorApi.SessionDenied -> CreateSessionError.Error
+                    CreateSessionErrorApi.InvalidApiKey,
+                    CreateSessionErrorApi.RequestTokenNotFound,
+                    CreateSessionErrorApi.SessionDenied,
                     is CreateSessionErrorApi.Unknow -> CreateSessionError.Error
                 }
             }.map { (sessionId, _) -> SessionToken(sessionId) }.bind()
@@ -74,7 +80,7 @@ class AuthRepositoryImpl(
     override suspend fun createGuestSession(): ResponseSessionGuestToken = either {
         val token = authService.createGuestSession().mapLeft {
             when (it) {
-                CreateGuestSessionErrorApi.InvalidApiKey -> BaseResponseError.Error(ErrorMessage(""))
+                CreateGuestSessionErrorApi.InvalidApiKey,
                 is CreateGuestSessionErrorApi.Unknow -> BaseResponseError.Error(ErrorMessage(""))
             }
         }.bind()
@@ -86,14 +92,13 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun checkIfUserIsLogIn(): ResponseIfUserIsLogin {
-        val state = tokenRepository.getCurrentSessionState()
-        return when (state) {
+        return when (val state = tokenRepository.getCurrentSessionState()) {
             is SessionState.User -> UserType.User.right()
             is SessionState.Guest -> {
                 if (isSessionExpired(state.expiresAt)) {
                     CheckUserError.UserNotAuth.left()
                 } else {
-                    UserType.Guest.right()
+                    UserType.Guest(state.expiresAt).right()
                 }
             }
 
@@ -103,13 +108,14 @@ class AuthRepositoryImpl(
 
     private fun isSessionExpired(expiresAt: String): Boolean {
         return try {
-            val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss 'UTC'", Locale.US)
-            format.timeZone = TimeZone.getTimeZone("UTC")
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss 'UTC'")
 
-            val expiryDate = format.parse(expiresAt)
-            val currentDate = Date()
+            val expiryInstant = LocalDateTime.parse(expiresAt, formatter)
+                .atZone(ZoneId.of("UTC"))
+                .toInstant()
 
-            expiryDate?.before(currentDate) == true
+            val now = Instant.now()
+            now.isAfter(expiryInstant)
         } catch (_: Exception) {
             true
         }

@@ -9,7 +9,7 @@ import com.nikol.auth_impl.presentation.mvi.effect.StartPageEffect
 import com.nikol.auth_impl.presentation.mvi.intent.StartPageIntent
 import com.nikol.auth_impl.presentation.mvi.state.CreateSessionState
 import com.nikol.auth_impl.presentation.mvi.state.StartPageState
-import com.nikol.nav_api.Router
+import com.nikol.viewmodel.Router
 import com.nikol.viewmodel.BaseViewModel
 import com.nikol.viewmodel.intentDsl.intents
 import com.nikol.viewmodel.intentDsl.on

@@ -9,6 +9,6 @@ class HomeFeature : MainFeatureApi {
         navController: NavController,
         navGraphBuilder: NavGraphBuilder
     ) {
-        navGraphBuilder.homeGraph()
+        navGraphBuilder.homeGraph(navController)
     }
 }

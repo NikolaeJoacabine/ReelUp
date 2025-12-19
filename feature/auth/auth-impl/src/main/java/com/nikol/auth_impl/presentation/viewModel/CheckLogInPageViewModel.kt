@@ -1,9 +1,11 @@
 package com.nikol.auth_impl.presentation.viewModel
 
+import android.util.Log
+import com.nikol.auth_impl.domain.model.UserType
 import com.nikol.auth_impl.domain.useCase.CheckLogInUseCase
 import com.nikol.auth_impl.presentation.mvi.intent.CheckPageIntent
 import com.nikol.auth_impl.presentation.mvi.state.CheckPageState
-import com.nikol.nav_api.Router
+import com.nikol.viewmodel.Router
 import com.nikol.viewmodel.BaseViewModel
 import com.nikol.viewmodel.UiEffect
 import com.nikol.viewmodel.intentDsl.debounce
@@ -35,6 +37,7 @@ class CheckLogInPageViewModel(
                         navigate { toStart() }
                     },
                     ifRight = {
+                        Log.d("Auth", it.toString())
                         navigate { toHome() }
                     }
                 )

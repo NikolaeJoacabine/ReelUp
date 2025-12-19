@@ -6,6 +6,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -16,7 +17,6 @@ import com.nikol.di.scope.LinkedContext
 import com.nikol.di.scope.ScopedContext
 import com.nikol.di.scope.viewModelWithRouter
 import com.nikol.home_api.destination.HomeGraph
-import com.nikol.home_impl.domain.parameters.TypeContent
 import com.nikol.home_impl.presentation.di.HomeComponent
 import com.nikol.home_impl.presentation.di.MovieComponent
 import com.nikol.home_impl.presentation.di.TVComponent
@@ -26,6 +26,7 @@ import com.nikol.home_impl.presentation.ui.screens.MovieScreen
 import com.nikol.home_impl.presentation.ui.screens.TVScreen
 import com.nikol.home_impl.presentation.viewModel.HomePageViewModel
 import com.nikol.home_impl.presentation.viewModel.TypeContentRouter
+import com.nikol.ui.model.MediaType
 
 private fun createTypeContentRouter(navController: NavHostController): TypeContentRouter =
     object : TypeContentRouter {
@@ -43,7 +44,7 @@ private fun createTypeContentRouter(navController: NavHostController): TypeConte
     }
 
 
-internal fun NavGraphBuilder.homeGraph() {
+fun NavGraphBuilder.homeGraph(rootNavController: NavController) {
     composable<HomeGraph> {
         ScopedContext<HomeComponent> {
             val contentNavController = rememberNavController()
@@ -56,7 +57,7 @@ internal fun NavGraphBuilder.homeGraph() {
             Scaffold(
                 modifier = Modifier.fillMaxSize(),
                 topBar = {
-                    HomeTopBar(state.typeContent) { typeContent ->
+                    HomeTopBar(state.mediaType) { typeContent ->
                         homeViewModel.setIntent(HomeIntent.ChangeTypeContent(typeContent))
                     }
                 }
@@ -66,17 +67,17 @@ internal fun NavGraphBuilder.homeGraph() {
                     startDestination = MoviePage,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding)
+                        .padding(top = innerPadding.calculateTopPadding())
                 ) {
                     composable<MoviePage> {
                         LinkedContext<MovieComponent> {
-                            MovieScreen(state.typeContent.name)
+                            MovieScreen()
                         }
                     }
                     composable<TVPage> {
                         LinkedContext<TVComponent> {
-                            TVScreen(state.typeContent.name) {
-                                homeViewModel.setIntent(HomeIntent.ChangeTypeContent(TypeContent.Movie))
+                            TVScreen {
+                                homeViewModel.setIntent(HomeIntent.ChangeTypeContent(MediaType.MOVIE))
                             }
                         }
                     }

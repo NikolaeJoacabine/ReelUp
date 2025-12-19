@@ -2,7 +2,7 @@ package com.nikol.di.scope
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import com.nikol.nav_api.Router
+import com.nikol.viewmodel.Router
 import com.nikol.viewmodel.BaseViewModel
 import org.koin.androidx.compose.koinViewModel
 

@@ -43,7 +43,14 @@ fun NavGraphBuilder.authFeature(navController: NavController) {
                 composable<CheckPage> {
                     LinkedContext<CheckPageComponent> {
                         CheckScreen(
-                            navToStart = { nestedNavController.navigate(StartPage) },
+                            navToStart = {
+                                nestedNavController.navigate(StartPage) {
+                                    popUpTo(0) {
+                                        inclusive = true
+                                    }
+                                    launchSingleTop = true
+                                }
+                            },
                             navToHome = {
                                 navController.navigate(MainGraph) {
                                     popUpTo(0) {

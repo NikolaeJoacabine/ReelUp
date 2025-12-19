@@ -13,6 +13,7 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.resources.Resources
 import io.ktor.client.request.header
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.TimeoutCancellationException
@@ -67,7 +68,7 @@ internal fun provideHttpClient() =
         defaultRequest {
             url("https://api.themoviedb.org/3/")
             contentType(ContentType.Application.Json)
-            header("Authorization", "Bearer ${BuildConfig.TMDB_API_KEY}")
+            header(HttpHeaders.Authorization, "Bearer ${BuildConfig.TMDB_API_KEY}")
         }
         expectSuccess = true
     }

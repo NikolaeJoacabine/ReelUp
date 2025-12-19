@@ -1,10 +1,10 @@
 package com.nikol.home_impl.presentation.viewModel
 
-import com.nikol.home_impl.domain.parameters.TypeContent
 import com.nikol.home_impl.presentation.mvi.effect.HomeEffect
 import com.nikol.home_impl.presentation.mvi.intent.HomeIntent
 import com.nikol.home_impl.presentation.mvi.state.HomeState
-import com.nikol.nav_api.Router
+import com.nikol.viewmodel.Router
+import com.nikol.ui.model.MediaType
 import com.nikol.viewmodel.BaseViewModel
 import com.nikol.viewmodel.intentDsl.filter
 import com.nikol.viewmodel.intentDsl.intents
@@ -14,24 +14,21 @@ interface TypeContentRouter : Router {
     fun navigateToTV()
 }
 
-sealed interface HomeEvent {
-    data class ChangeContent(val typeContent: TypeContent) : HomeEvent
-}
-
 class HomePageViewModel : BaseViewModel<HomeIntent, HomeState, HomeEffect, TypeContentRouter>() {
     override fun createInitialState() = HomeState(
-        typeContent = TypeContent.Movie
+        mediaType = MediaType.MOVIE
     )
 
     override fun handleIntents() = intents {
         setup<HomeIntent.ChangeTypeContent> {
-            filter { intent -> intent.typeContent != uiState.value.typeContent }
+            filter { intent -> intent.mediaType != uiState.value.mediaType }
             handleConsistently { intent ->
-                setState { copy(typeContent = intent.typeContent) }
+                setState { copy(mediaType = intent.mediaType) }
                 navigate {
-                    when (intent.typeContent) {
-                        TypeContent.Movie -> navigateToMovie()
-                        TypeContent.TV -> navigateToTV()
+                    when (intent.mediaType) {
+                        MediaType.MOVIE -> navigateToMovie()
+                        MediaType.TV -> navigateToTV()
+                        else -> {}
                     }
                 }
             }

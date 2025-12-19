@@ -13,6 +13,9 @@ dependencies {
     implementation(projects.core.di)
     implementation(projects.core.navigation.navApi)
     implementation(projects.core.navigation.navImpl)
+    implementation(projects.core.ui)
     implementation(projects.feature.home.homeApi)
     implementation(projects.core.viewModel)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.ktor)
 }

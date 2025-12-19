@@ -1,5 +1,7 @@
 package com.nikol.reelup.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
@@ -22,15 +24,13 @@ import androidx.navigation.compose.rememberNavController
 import com.nikol.home_api.destination.HomeGraph
 import com.nikol.nav_impl.commonDestination.MainGraph
 import com.nikol.nav_impl.navApi.MainFeatureApi
-import org.koin.compose.getKoin
 
 
-fun NavGraphBuilder.mainGraph(navController: NavController) {
+fun NavGraphBuilder.mainGraph(
+    navController: NavController,
+    mainFeatures: List<MainFeatureApi>
+) {
     composable<MainGraph> {
-
-        val koin = getKoin()
-        val mainFeatures = remember { koin.getAll<MainFeatureApi>() }
-
         val nestedNavController = rememberNavController()
         Scaffold(
             bottomBar = {

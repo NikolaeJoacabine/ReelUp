@@ -6,9 +6,11 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
@@ -16,7 +18,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 private val jobsMap = ConcurrentHashMap<ViewModel, MutableMap<String, WeakReference<Job>>>()
 private val exceptionHandler = CoroutineExceptionHandler { context, throwable ->
-    Log.d("CoroutineError", "Unhandled exception in job '${context.job}': ${throwable.message}")
+    Log.e("CoroutineError", "Unhandled exception in job '${context.job}': ${throwable.message}")
 }
 
 fun ViewModel.launchWithoutOld(
@@ -25,19 +27,34 @@ fun ViewModel.launchWithoutOld(
     block: suspend CoroutineScope.() -> Unit
 ): Job {
     cancelJob(key)
-
     val supervisorJob = SupervisorJob(parent = viewModelScope.coroutineContext[Job])
     val context = dispatcher + supervisorJob + exceptionHandler
-
     val newJob = viewModelScope.launch(context) {
         block()
     }
-
     jobsMap.getOrPut(this) {
         ConcurrentHashMap()
     }[key] = WeakReference(newJob)
 
     return newJob
+}
+
+fun <T> ViewModel.asyncWithoutOld(
+    key: String = "default",
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    block: suspend CoroutineScope.() -> T
+): Deferred<T> {
+    cancelJob(key)
+    val supervisorJob = SupervisorJob(parent = viewModelScope.coroutineContext[Job])
+    val context = dispatcher + supervisorJob
+    val newDeferred = viewModelScope.async(context) {
+        block()
+    }
+    jobsMap.getOrPut(this) {
+        ConcurrentHashMap()
+    }[key] = WeakReference(newDeferred)
+
+    return newDeferred
 }
 
 fun ViewModel.cancelJob(key: String = "default") {

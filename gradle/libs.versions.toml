@@ -19,6 +19,7 @@ material = "1.13.0"
 jetbrainsKotlinJvm = "2.2.21"
 kotlinxCoroutines = "1.10.2"
 datastorePreferences = "1.1.7"
+immutableCollections = "0.4.0"
 
 [libraries]
 
@@ -83,6 +84,8 @@ coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", v
 arrow-bom = { group = "io.arrow-kt", name = "arrow-stack", version.ref = "arrow" }
 arrow-core = { group = "io.arrow-kt", name = "arrow-core" }
 
+# Immutable Collection
+kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable",version.ref ="immutableCollections"  }
 
 # Gradle Plugins (as dependencies)
 plugin-android-application = { module = "com.android.application:com.android.application.gradle.plugin", version.ref = "agp" }

@@ -1,8 +1,10 @@
 package com.nikol.home_impl.presentation.mvi.state
 
-import com.nikol.home_impl.domain.parameters.TypeContent
+import androidx.compose.runtime.Immutable
+import com.nikol.ui.model.MediaType
 import com.nikol.viewmodel.UiState
 
+@Immutable
 data class HomeState(
-    val typeContent: TypeContent
+    val mediaType: MediaType
 ) : UiState

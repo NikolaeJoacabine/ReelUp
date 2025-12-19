@@ -22,7 +22,7 @@ internal fun provideImageLoader(
         .diskCache {
             DiskCache.Builder()
                 .directory(File(context.cacheDir, "image_cache"))
-                .maxSizeBytes(50L * 1024 * 1024)
+                .maxSizeBytes(100L * 1024 * 1024)
                 .build()
         }
         .memoryCache {
