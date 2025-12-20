@@ -10,9 +10,11 @@ import kotlinx.coroutines.launch
 abstract class BaseViewModel<INTENT : UiIntent, STATE : UiState, EFFECT : UiEffect, ROUTER : Router> :
     ViewModel() {
 
-    private val _uiState = MutableStateFlow(createInitialState())
+    private val _uiState: MutableStateFlow<STATE> by lazy {
+        MutableStateFlow(createInitialState())
+    }
 
-    val uiState: StateFlow<STATE> get() = _uiState.asStateFlow()
+    val uiState: StateFlow<STATE> by lazy { _uiState.asStateFlow() }
 
 
     private val _effect = Channel<EFFECT>(Channel.BUFFERED)

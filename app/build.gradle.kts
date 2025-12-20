@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.reelup.android.application)
     alias(libs.plugins.reelup.android.compose.application)
     alias(libs.plugins.reelup.koin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
@@ -22,6 +23,9 @@ dependencies {
     implementation(projects.feature.auth.authApi)
     implementation(projects.feature.home.homeApi)
     implementation(projects.feature.home.homeImpl)
+    implementation(projects.feature.detail.detailApi)
+    implementation(projects.feature.detail.detailImpl)
 
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.kotlinx.serialization.json)
 }

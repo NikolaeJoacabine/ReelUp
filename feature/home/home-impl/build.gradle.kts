@@ -15,6 +15,7 @@ dependencies {
     implementation(projects.core.navigation.navImpl)
     implementation(projects.core.ui)
     implementation(projects.feature.home.homeApi)
+    implementation(projects.feature.detail.detailApi)
     implementation(projects.core.viewModel)
     implementation(libs.coil.compose)
     implementation(libs.coil.network.ktor)

@@ -8,7 +8,8 @@ import com.nikol.nav_impl.navApi.RootFeatureApi
 class AuthFeature : RootFeatureApi {
     override fun registerFeature(
         navController: NavController,
-        navGraphBuilder: NavGraphBuilder
+        navGraphBuilder: NavGraphBuilder,
+        secondNavController: NavController?
     ) {
         navGraphBuilder.authFeature(navController)
     }

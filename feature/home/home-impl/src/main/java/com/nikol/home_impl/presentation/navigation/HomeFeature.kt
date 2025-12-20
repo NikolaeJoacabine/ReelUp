@@ -7,8 +7,9 @@ import com.nikol.nav_impl.navApi.MainFeatureApi
 class HomeFeature : MainFeatureApi {
     override fun registerFeature(
         navController: NavController,
-        navGraphBuilder: NavGraphBuilder
+        navGraphBuilder: NavGraphBuilder,
+        secondNavController: NavController?
     ) {
-        navGraphBuilder.homeGraph(navController)
+        navGraphBuilder.homeGraph(secondNavController)
     }
 }

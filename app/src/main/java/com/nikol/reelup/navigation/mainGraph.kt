@@ -1,7 +1,5 @@
 package com.nikol.reelup.navigation
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
@@ -10,31 +8,65 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.nikol.di.scope.viewModelWithRouter
 import com.nikol.home_api.destination.HomeGraph
 import com.nikol.nav_impl.commonDestination.MainGraph
 import com.nikol.nav_impl.navApi.MainFeatureApi
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.serialization.Serializable
 
+@Serializable
+data object SearchGraph
+
+@Serializable
+data object ProfileGraph
 
 fun NavGraphBuilder.mainGraph(
-    navController: NavController,
+    rootNavController: NavController,
     mainFeatures: List<MainFeatureApi>
 ) {
     composable<MainGraph> {
         val nestedNavController = rememberNavController()
+
+        val viewModel = viewModelWithRouter<MainViewModel, MainRouter> {
+            MainRouterImpl(nestedNavController)
+        }
+
+        val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+        LaunchedEffect(nestedNavController) {
+            nestedNavController.currentBackStackEntryFlow.collectLatest { entry ->
+                val destination = entry.destination
+                val activeTab = MainTab.entries.find { tab ->
+                    destination.hierarchy.any { it.hasRoute(tab.route::class) }
+                }
+                if (activeTab != null && activeTab != state.currentTab) {
+                    viewModel.setIntent(MainIntent.SyncTab(activeTab))
+                }
+            }
+        }
+
+
         Scaffold(
             bottomBar = {
-                MainGraphBottomBar(nestedNavController)
+                MainGraphBottomBar(
+                    tabs = state.tabs,
+                    currentTab = state.currentTab,
+                    onTabClick = { tab ->
+                        viewModel.setIntent(MainIntent.OnTabSelected(tab))
+                    }
+                )
             }
         ) { innerPadding ->
             NavHost(
@@ -45,7 +77,13 @@ fun NavGraphBuilder.mainGraph(
                     .padding(innerPadding)
             ) {
                 mainFeatures.forEach {
-                    it.registerFeature(navController, this)
+                    it.registerFeature(nestedNavController, this, rootNavController)
+                }
+                composable<SearchGraph> {
+                    Text("Search")
+                }
+                composable<ProfileGraph> {
+                    Text("Profile")
                 }
             }
         }
@@ -53,35 +91,25 @@ fun NavGraphBuilder.mainGraph(
 }
 
 @Composable
-fun MainGraphBottomBar(navController: NavController) {
-    val mainTabs = remember { listOf(BottomBarTab.Home) }
+fun MainGraphBottomBar(
+    tabs: List<MainTab>,
+    currentTab: MainTab,
+    onTabClick: (MainTab) -> Unit
+) {
     BottomAppBar {
-        mainTabs.forEach { topLevelRoute ->
-            val backStackEntry = navController.currentBackStackEntryAsState()
-            val currentDestination = backStackEntry.value?.destination
-            val selected = currentDestination?.hierarchy?.any {
-                it.hasRoute(topLevelRoute.route::class)
-            } == true
+        tabs.forEach { tab ->
+            val isSelected = tab == currentTab
+
             NavigationBarItem(
-                selected = selected,
-                onClick = {
-                    navController.navigate(topLevelRoute.route) {
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
+                selected = isSelected,
+                onClick = { onTabClick(tab) },
                 icon = {
                     Icon(
-                        imageVector = topLevelRoute.icon,
-                        contentDescription = null
+                        imageVector = tab.icon,
+                        contentDescription = tab.title
                     )
                 },
-                label = {
-                    Text(topLevelRoute.title)
-                }
+                label = { Text(tab.title) },
             )
         }
     }

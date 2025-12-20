@@ -4,7 +4,11 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 
 interface NavApi {
-    fun registerFeature(navController: NavController, navGraphBuilder: NavGraphBuilder)
+    fun registerFeature(
+        navController: NavController,
+        navGraphBuilder: NavGraphBuilder,
+        secondNavController: NavController? = null
+    )
 }
 
 interface RootFeatureApi : NavApi

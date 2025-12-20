@@ -14,6 +14,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nikol.detail_api.ContentType
 import com.nikol.di.scope.viewModelWithRouter
 import com.nikol.home_impl.domain.parameters.Period
 import com.nikol.home_impl.presentation.mvi.intent.MovieIntent
@@ -23,9 +24,12 @@ import com.nikol.home_impl.presentation.ui.comonents.PeriodSelector
 import com.nikol.home_impl.presentation.viewModel.MovieRouter
 import com.nikol.home_impl.presentation.viewModel.MovieViewModel
 import com.nikol.ui.model.Content
+import com.nikol.ui.model.MediaType
 
 @Composable
-internal fun MovieScreen() {
+internal fun MovieScreen(
+    onDetail: (ContentType) -> Unit
+) {
 
     val viewModel = viewModelWithRouter<MovieViewModel, MovieRouter> {
         MovieRouter { }
@@ -35,7 +39,15 @@ internal fun MovieScreen() {
     MovieScreenContent(
         state = state,
         onPeriodChanged = { period -> viewModel.setIntent(MovieIntent.ChangePeriodForTrend(period)) },
-        onMovieClick = { movie -> },
+        onMovieClick = { movie ->
+            onDetail(
+                when (movie.type) {
+                    MediaType.MOVIE -> ContentType.MOVIE
+                    MediaType.TV -> ContentType.TV
+                    MediaType.PERSON -> ContentType.PERSON
+                }
+            )
+        },
         onRefresh = { viewModel.setIntent(MovieIntent.RefreshData) }
     )
 }

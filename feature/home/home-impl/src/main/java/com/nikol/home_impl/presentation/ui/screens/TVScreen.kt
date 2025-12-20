@@ -1,5 +1,6 @@
 package com.nikol.home_impl.presentation.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,6 +29,8 @@ internal fun TVScreen(
     val viewModel = viewModelWithRouter<TVViewModel, TVRouter> {
         TVRouter { }
     }
+
+    BackHandler{ onBackPressed() }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     TvScreenContent(

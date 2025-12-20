@@ -1,5 +1,7 @@
 package com.nikol.home_impl.presentation.navigation
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -13,6 +15,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.nikol.detail_api.DetailScreen
 import com.nikol.di.scope.LinkedContext
 import com.nikol.di.scope.ScopedContext
 import com.nikol.di.scope.viewModelWithRouter
@@ -44,7 +47,7 @@ private fun createTypeContentRouter(navController: NavHostController): TypeConte
     }
 
 
-fun NavGraphBuilder.homeGraph(rootNavController: NavController) {
+fun NavGraphBuilder.homeGraph(rootNavController: NavController?) {
     composable<HomeGraph> {
         ScopedContext<HomeComponent> {
             val contentNavController = rememberNavController()
@@ -67,11 +70,39 @@ fun NavGraphBuilder.homeGraph(rootNavController: NavController) {
                     startDestination = MoviePage,
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(top = innerPadding.calculateTopPadding())
+                        .padding(top = innerPadding.calculateTopPadding()),
+                    enterTransition = {
+                        slideIntoContainer(
+                            towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                            animationSpec = tween(500)
+                        )
+                    },
+                    exitTransition = {
+                        slideOutOfContainer(
+                            towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                            animationSpec = tween(500)
+                        )
+                    },
+                    popEnterTransition = {
+                        slideIntoContainer(
+                            towards = AnimatedContentTransitionScope.SlideDirection.End,
+                            animationSpec = tween(500)
+                        )
+                    },
+                    popExitTransition = {
+                        slideOutOfContainer(
+                            towards = AnimatedContentTransitionScope.SlideDirection.End,
+                            animationSpec = tween(500)
+                        )
+                    }
                 ) {
                     composable<MoviePage> {
                         LinkedContext<MovieComponent> {
-                            MovieScreen()
+                            MovieScreen(
+                                onDetail = { contentType ->
+                                    rootNavController?.navigate(DetailScreen(contentType))
+                                }
+                            )
                         }
                     }
                     composable<TVPage> {
