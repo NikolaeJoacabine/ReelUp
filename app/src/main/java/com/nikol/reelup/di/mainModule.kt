@@ -1,10 +1,12 @@
 package com.nikol.reelup.di
 
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.nikol.auth_impl.presentation.di.authModule
 import com.nikol.detail_impl.presentation.di.detailModule
 import com.nikol.home_impl.presentation.di.homeModule
 import com.nikol.network.di.networkModule
 import com.nikol.reelup.navigation.MainViewModel
+import com.nikol.reelup.navigation.SearchViewModel
 import com.nikol.security.di.securityModule
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module

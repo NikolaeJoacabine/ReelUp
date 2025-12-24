@@ -30,7 +30,6 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 implementation(libs.arrow.core)
 
                 implementation(libs.androidx.material.icons.extended)
-
                 implementation(libs.kotlinx.collections.immutable)
             }
         }

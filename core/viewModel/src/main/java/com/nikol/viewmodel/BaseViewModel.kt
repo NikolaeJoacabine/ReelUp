@@ -3,6 +3,7 @@ package com.nikol.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -13,24 +14,37 @@ abstract class BaseViewModel<INTENT : UiIntent, STATE : UiState, EFFECT : UiEffe
     private val _uiState: MutableStateFlow<STATE> by lazy {
         MutableStateFlow(createInitialState())
     }
+    private val bootstrap: Job by lazy {
+        viewModelScope.launch {
+            handleIntents()
+            onLaunch()
+        }
+    }
 
-    val uiState: StateFlow<STATE> by lazy { _uiState.asStateFlow() }
-
+    val uiState: StateFlow<STATE> by lazy {
+        bootstrap
+        _uiState.asStateFlow()
+    }
 
     private val _effect = Channel<EFFECT>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
 
-    protected open fun onIntent(intent: INTENT) {
-        Log.d("MVI", "Intent: $intent")
+    private val _intent = MutableSharedFlow<INTENT>()
+    val intentFlow: SharedFlow<INTENT> by lazy {
+        bootstrap
+        _intent.asSharedFlow()
     }
 
-    protected open fun onStateChanged(oldState: STATE, newState: STATE) {
-        Log.d("MVI", "State change: $oldState -> $newState")
+    private val _isUiVisible = MutableStateFlow(false)
+    val isUiVisible = _isUiVisible.asStateFlow()
+
+    fun onUiStart() {
+        bootstrap
+        _isUiVisible.value = true
     }
 
-    fun setIntent(intent: INTENT) {
-        onIntent(intent)
-        viewModelScope.launch { _intent.emit(intent) }
+    fun onUiStop() {
+        _isUiVisible.value = false
     }
 
     var router: ROUTER? = null
@@ -40,8 +54,22 @@ abstract class BaseViewModel<INTENT : UiIntent, STATE : UiState, EFFECT : UiEffe
         this.router = router
     }
 
-    protected abstract fun createInitialState(): STATE
+    protected inline fun navigate(block: ROUTER.() -> Unit) {
+        router?.run(block)
+    }
 
+    /**
+     * Точка входа для UI событий
+     */
+    fun setIntent(intent: INTENT) {
+        bootstrap
+        onIntent(intent)
+        viewModelScope.launch { _intent.emit(intent) }
+    }
+
+    /**
+     * Обновление стейта. Потокобезопасно.
+     */
     protected fun setState(reducer: STATE.() -> STATE) {
         _uiState.update { old ->
             val new = old.reducer()
@@ -50,30 +78,30 @@ abstract class BaseViewModel<INTENT : UiIntent, STATE : UiState, EFFECT : UiEffe
         }
     }
 
+    /**
+     * Отправка эффекта (One-shot event)
+     */
     protected fun setEffect(builder: () -> EFFECT) {
         viewModelScope.launch { _effect.send(builder()) }
     }
 
-    protected open suspend fun onLaunch() {}
 
-    protected open fun onDispose() {
-        router = null
-    }
+    protected abstract fun createInitialState(): STATE
 
     protected abstract fun handleIntents()
 
-    protected inline fun navigate(block: ROUTER.() -> Unit) {
-        router?.run(block)
+    protected open suspend fun onLaunch() {}
+
+    protected open fun onIntent(intent: INTENT) {
+        Log.d("MVI", "Intent: $intent")
     }
 
-    private val _intent = MutableSharedFlow<INTENT>()
+    protected open fun onStateChanged(oldState: STATE, newState: STATE) {
+        Log.d("MVI", "State change: $oldState -> $newState")
+    }
 
-
-    val intentFlow: SharedFlow<INTENT> = _intent.asSharedFlow()
-
-    init {
-        handleIntents()
-        viewModelScope.launch { onLaunch() }
+    protected open fun onDispose() {
+        router = null
     }
 
     override fun onCleared() {

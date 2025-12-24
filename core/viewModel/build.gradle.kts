@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.reelup.android.library)
-    `maven-publish`
+    alias(libs.plugins.reelup.android.compose.library)
 }
 
 android {
