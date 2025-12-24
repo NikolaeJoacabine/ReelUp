@@ -10,5 +10,6 @@ enum class ContentType {
 
 @Serializable
 data class DetailScreen(
-    val contentType: ContentType
+    val contentType: ContentType,
+    val id: Int
 )

@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nikol.di.scope.viewModelWithRouter
 import com.nikol.home_impl.domain.parameters.Period
-import com.nikol.home_impl.presentation.mvi.intent.MovieIntent
 import com.nikol.home_impl.presentation.mvi.intent.TVIntent
 import com.nikol.home_impl.presentation.mvi.state.TVState
 import com.nikol.home_impl.presentation.ui.comonents.ContentSection

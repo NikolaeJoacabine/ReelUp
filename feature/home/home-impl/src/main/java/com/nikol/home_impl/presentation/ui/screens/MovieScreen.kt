@@ -1,12 +1,8 @@
 package com.nikol.home_impl.presentation.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -28,7 +24,7 @@ import com.nikol.ui.model.MediaType
 
 @Composable
 internal fun MovieScreen(
-    onDetail: (ContentType) -> Unit
+    onDetail: (ContentType, Int) -> Unit
 ) {
 
     val viewModel = viewModelWithRouter<MovieViewModel, MovieRouter> {
@@ -45,7 +41,8 @@ internal fun MovieScreen(
                     MediaType.MOVIE -> ContentType.MOVIE
                     MediaType.TV -> ContentType.TV
                     MediaType.PERSON -> ContentType.PERSON
-                }
+                },
+                movie.id
             )
         },
         onRefresh = { viewModel.setIntent(MovieIntent.RefreshData) }

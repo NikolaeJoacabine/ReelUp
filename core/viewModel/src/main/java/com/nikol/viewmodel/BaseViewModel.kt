@@ -3,26 +3,31 @@ package com.nikol.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 abstract class BaseViewModel<INTENT : UiIntent, STATE : UiState, EFFECT : UiEffect, ROUTER : Router> :
     ViewModel() {
 
+    private val isInitialized = AtomicBoolean(false)
     private val _uiState: MutableStateFlow<STATE> by lazy {
         MutableStateFlow(createInitialState())
     }
-    private val bootstrap: Job by lazy {
-        viewModelScope.launch {
-            handleIntents()
-            onLaunch()
+
+    private fun ensureInitialized() {
+        if (isInitialized.compareAndSet(false, true)) {
+            Log.d("MVI_DEBUG", "Initializing VM: ${System.identityHashCode(this)}")
+            viewModelScope.launch {
+                handleIntents()
+                onLaunch()
+            }
         }
     }
 
     val uiState: StateFlow<STATE> by lazy {
-        bootstrap
+        ensureInitialized()
         _uiState.asStateFlow()
     }
 
@@ -31,7 +36,7 @@ abstract class BaseViewModel<INTENT : UiIntent, STATE : UiState, EFFECT : UiEffe
 
     private val _intent = MutableSharedFlow<INTENT>()
     val intentFlow: SharedFlow<INTENT> by lazy {
-        bootstrap
+        ensureInitialized()
         _intent.asSharedFlow()
     }
 
@@ -39,7 +44,7 @@ abstract class BaseViewModel<INTENT : UiIntent, STATE : UiState, EFFECT : UiEffe
     val isUiVisible = _isUiVisible.asStateFlow()
 
     fun onUiStart() {
-        bootstrap
+        ensureInitialized()
         _isUiVisible.value = true
     }
 
@@ -62,7 +67,7 @@ abstract class BaseViewModel<INTENT : UiIntent, STATE : UiState, EFFECT : UiEffe
      * Точка входа для UI событий
      */
     fun setIntent(intent: INTENT) {
-        bootstrap
+        ensureInitialized()
         onIntent(intent)
         viewModelScope.launch { _intent.emit(intent) }
     }

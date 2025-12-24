@@ -5,7 +5,7 @@ plugins {
 android {
     namespace = "com.nikol.detail_impl"
 }
-dependencies{
+dependencies {
     implementation(projects.core.domainUtil)
     implementation(projects.core.security)
     implementation(projects.core.network)
@@ -13,5 +13,6 @@ dependencies{
     implementation(projects.core.navigation.navApi)
     implementation(projects.core.navigation.navImpl)
     implementation(projects.core.ui)
+    implementation(projects.core.viewModel)
     implementation(projects.feature.detail.detailApi)
 }

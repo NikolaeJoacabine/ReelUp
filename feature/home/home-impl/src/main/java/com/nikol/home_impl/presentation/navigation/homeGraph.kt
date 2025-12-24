@@ -99,8 +99,8 @@ fun NavGraphBuilder.homeGraph(rootNavController: NavController?) {
                     composable<MoviePage> {
                         LinkedContext<MovieComponent> {
                             MovieScreen(
-                                onDetail = { contentType ->
-                                    rootNavController?.navigate(DetailScreen(contentType))
+                                onDetail = { contentType, id ->
+                                    rootNavController?.navigate(DetailScreen(contentType, id))
                                 }
                             )
                         }
