@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Detail -->
+    <string name="detail_error_loading">Failed to load details</string>
+    <string name="detail_retry">Retry</string>
+    <string name="detail_trailer">Trailer</string>
+    <string name="detail_storyline">Storyline</string>
+    <string name="detail_show_more">Show more</string>
+    <string name="detail_show_less">Show less</string>
+    <string name="detail_seasons">Seasons</string>
+    <string name="detail_cast">Cast</string>
+    <string name="detail_see_all">See all</string>
+    <string name="detail_recommendations">You may also like</string>
+    <string name="detail_back">Back</string>
+
+    <!-- Actions Sheet (BottomSheet) -->
+    <string name="sheet_actions_title">Actions</string>
+    <string name="sheet_rate_title">Rate on TMDB</string>
+    <string name="sheet_rate_desc">Share your opinion with the community</string>
+    <string name="sheet_watchlist_title">Add to Watchlist</string>
+    <string name="sheet_watchlist_desc">Save to watch later</string>
+    <string name="sheet_review_title">Write a review</string>
+    <string name="sheet_review_desc">Tell others what you think</string>
+    <string name="sheet_share_title">Share</string>
+    <string name="sheet_share_desc">Send a link to friends</string>
+</resources>

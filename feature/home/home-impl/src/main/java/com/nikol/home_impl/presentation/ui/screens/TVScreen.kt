@@ -11,19 +11,22 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nikol.detail_api.ContentType
 import com.nikol.di.scope.viewModelWithRouter
 import com.nikol.home_impl.domain.parameters.Period
 import com.nikol.home_impl.presentation.mvi.intent.TVIntent
 import com.nikol.home_impl.presentation.mvi.state.TVState
-import com.nikol.home_impl.presentation.ui.comonents.ContentSection
+import com.nikol.ui.component.ContentSection
 import com.nikol.home_impl.presentation.ui.comonents.PeriodSelector
 import com.nikol.home_impl.presentation.viewModel.TVRouter
 import com.nikol.home_impl.presentation.viewModel.TVViewModel
 import com.nikol.ui.model.Content
+import com.nikol.ui.model.MediaType
 
 @Composable
 internal fun TVScreen(
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onDetail: (ContentType, Int) -> Unit
 ) {
     val viewModel = viewModelWithRouter<TVViewModel, TVRouter> {
         TVRouter { }
@@ -35,7 +38,16 @@ internal fun TVScreen(
     TvScreenContent(
         state = state,
         onPeriodChanged = { period -> viewModel.setIntent(TVIntent.ChangePeriodForTrend(period)) },
-        onMovieClick = { tv -> },
+        onMovieClick = { tv ->
+            onDetail(
+                when (tv.type) {
+                    MediaType.MOVIE -> ContentType.MOVIE
+                    MediaType.TV -> ContentType.TV
+                    MediaType.PERSON -> ContentType.PERSON
+                },
+                tv.id
+            )
+        },
         onRefresh = { viewModel.setIntent(TVIntent.RefreshData) }
     )
 }

@@ -94,30 +94,8 @@ class AuthRepositoryImpl(
     override suspend fun checkIfUserIsLogIn(): ResponseIfUserIsLogin {
         return when (val state = tokenRepository.getCurrentSessionState()) {
             is SessionState.User -> UserType.User.right()
-            is SessionState.Guest -> {
-                if (isSessionExpired(state.expiresAt)) {
-                    CheckUserError.UserNotAuth.left()
-                } else {
-                    UserType.Guest(state.expiresAt).right()
-                }
-            }
-
+            is SessionState.Guest -> UserType.Guest(state.expiresAt).right()
             SessionState.None -> CheckUserError.UserNotAuth.left()
-        }
-    }
-
-    private fun isSessionExpired(expiresAt: String): Boolean {
-        return try {
-            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss 'UTC'")
-
-            val expiryInstant = LocalDateTime.parse(expiresAt, formatter)
-                .atZone(ZoneId.of("UTC"))
-                .toInstant()
-
-            val now = Instant.now()
-            now.isAfter(expiryInstant)
-        } catch (_: Exception) {
-            true
         }
     }
 }

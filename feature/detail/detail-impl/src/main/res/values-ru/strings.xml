@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Детали -->
+    <string name="detail_error_loading">Ошибка загрузки данных</string>
+    <string name="detail_retry">Повторить</string>
+    <string name="detail_trailer">Трейлер</string>
+    <string name="detail_storyline">О сюжете</string>
+    <string name="detail_show_more">Показать всё</string>
+    <string name="detail_show_less">Скрыть</string>
+    <string name="detail_seasons">Сезоны</string>
+    <string name="detail_cast">Актерский состав</string>
+    <string name="detail_see_all">Все</string>
+    <string name="detail_recommendations">Вам может понравиться</string>
+    <string name="detail_back">Назад</string>
+
+    <!-- Лист действий (BottomSheet) -->
+    <string name="sheet_rate_title">Оценить на TMDB</string>
+    <string name="sheet_rate_desc">Поделитесь своим мнением с сообществом</string>
+    <string name="sheet_watchlist_title">В список серий</string>
+    <string name="sheet_watchlist_desc">Сохранить, чтобы посмотреть позже</string>
+    <string name="sheet_review_title">Написать отзыв</string>
+    <string name="sheet_review_desc">Расскажите другим, что вы думаете</string>
+    <string name="sheet_share_title">Поделиться</string>
+    <string name="sheet_share_desc">Отправить ссылку друзьям</string>
+</resources>

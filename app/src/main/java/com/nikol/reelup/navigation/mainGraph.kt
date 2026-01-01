@@ -2,28 +2,29 @@ package com.nikol.reelup.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.nikol.di.scope.viewModelWithRouter
 import com.nikol.home_api.destination.HomeGraph
 import com.nikol.nav_impl.commonDestination.MainGraph
 import com.nikol.nav_impl.navApi.MainFeatureApi
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -32,56 +33,80 @@ data object SearchGraph
 @Serializable
 data object ProfileGraph
 
+enum class MainTab(
+    val route: Any,
+    val title: String,
+    val icon: androidx.compose.ui.graphics.vector.ImageVector
+) {
+    Home(HomeGraph, "Home", androidx.compose.material.icons.Icons.Default.Home),
+    Search(SearchGraph, "Search", androidx.compose.material.icons.Icons.Default.Search),
+    Profile(ProfileGraph, "Profile", androidx.compose.material.icons.Icons.Default.Person)
+}
+
 fun NavGraphBuilder.mainGraph(
     rootNavController: NavController,
     mainFeatures: List<MainFeatureApi>
 ) {
     composable<MainGraph> {
-        val nestedNavController = rememberNavController()
 
-        val viewModel = viewModelWithRouter<MainViewModel, MainRouter> {
-            MainRouterImpl(nestedNavController)
+        val navController = rememberNavController()
+        val backStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = backStackEntry?.destination
+
+        val currentTab = remember(currentDestination) {
+            MainTab.entries.firstOrNull { tab ->
+                currentDestination?.hierarchy?.any {
+                    it.route == tab.route::class.qualifiedName
+                } == true
+            } ?: MainTab.Home
         }
-
-        val state by viewModel.uiState.collectAsStateWithLifecycle()
-
-        LaunchedEffect(nestedNavController) {
-            nestedNavController.currentBackStackEntryFlow.collectLatest { entry ->
-                val destination = entry.destination
-                val activeTab = MainTab.entries.find { tab ->
-                    destination.hierarchy.any { it.hasRoute(tab.route::class) }
-                }
-                if (activeTab != null && activeTab != state.currentTab) {
-                    viewModel.setIntent(MainIntent.SyncTab(activeTab))
-                }
-            }
-        }
-
 
         Scaffold(
             bottomBar = {
                 MainGraphBottomBar(
-                    tabs = state.tabs,
-                    currentTab = state.currentTab,
+                    tabs = MainTab.entries,
+                    currentTab = currentTab,
                     onTabClick = { tab ->
-                        viewModel.setIntent(MainIntent.OnTabSelected(tab))
+                        if (tab == currentTab) {
+                            navController.popBackStack(
+                                route = tab.route,
+                                inclusive = false
+                            )
+                        } else {
+                            navController.navigate(tab.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     }
                 )
             }
         ) { innerPadding ->
+
             NavHost(
-                navController = nestedNavController,
+                navController = navController,
                 startDestination = HomeGraph,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    .padding(bottom = innerPadding.calculateBottomPadding())
             ) {
+
                 mainFeatures.forEach {
-                    it.registerFeature(nestedNavController, this, rootNavController)
+                    it.registerFeature(
+                        navController,
+                        this,
+                        rootNavController,
+                        modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
+                    )
                 }
+
                 composable<SearchGraph> {
                     Text("Search")
                 }
+
                 composable<ProfileGraph> {
                     Text("Profile")
                 }
@@ -98,10 +123,8 @@ fun MainGraphBottomBar(
 ) {
     BottomAppBar {
         tabs.forEach { tab ->
-            val isSelected = tab == currentTab
-
             NavigationBarItem(
-                selected = isSelected,
+                selected = tab == currentTab,
                 onClick = { onTabClick(tab) },
                 icon = {
                     Icon(
@@ -109,7 +132,7 @@ fun MainGraphBottomBar(
                         contentDescription = tab.title
                     )
                 },
-                label = { Text(tab.title) },
+                label = { Text(tab.title) }
             )
         }
     }

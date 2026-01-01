@@ -15,4 +15,6 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.viewModel)
     implementation(projects.feature.detail.detailApi)
+    implementation(libs.coil.network.ktor)
+    implementation(libs.coil.compose)
 }

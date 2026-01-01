@@ -35,6 +35,14 @@ inline fun <reified I : UiIntent> IntentBuilder<in I>.on(
     noinline block: suspend (I) -> Unit
 ) = setup<I> { handleConsistently(block) }
 
+inline fun <reified I : UiIntent> IntentBuilder<in I>.on(
+    condition: Boolean,
+    noinline block: suspend (I) -> Unit
+) = setup<I> {
+    filter { condition }
+    handleConsistently(block)
+}
+
 inline fun <reified I : UiIntent> IntentBuilder<in I>.onLatest(
     noinline block: suspend (I) -> Unit
 ) = setup<I> { handleLatest(block) }

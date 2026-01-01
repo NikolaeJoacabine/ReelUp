@@ -2,11 +2,16 @@ package com.nikol.home_impl.presentation.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -47,7 +52,10 @@ private fun createTypeContentRouter(navController: NavHostController): TypeConte
     }
 
 
-fun NavGraphBuilder.homeGraph(rootNavController: NavController?) {
+fun NavGraphBuilder.homeGraph(
+    rootNavController: NavController?,
+    modifier: Modifier
+) {
     composable<HomeGraph> {
         ScopedContext<HomeComponent> {
             val contentNavController = rememberNavController()
@@ -58,7 +66,8 @@ fun NavGraphBuilder.homeGraph(rootNavController: NavController?) {
             val state by homeViewModel.uiState.collectAsStateWithLifecycle()
 
             Scaffold(
-                modifier = Modifier.fillMaxSize(),
+                modifier = modifier
+                    .fillMaxSize(),
                 topBar = {
                     HomeTopBar(state.mediaType) { typeContent ->
                         homeViewModel.setIntent(HomeIntent.ChangeTypeContent(typeContent))
@@ -107,9 +116,14 @@ fun NavGraphBuilder.homeGraph(rootNavController: NavController?) {
                     }
                     composable<TVPage> {
                         LinkedContext<TVComponent> {
-                            TVScreen {
-                                homeViewModel.setIntent(HomeIntent.ChangeTypeContent(MediaType.MOVIE))
-                            }
+                            TVScreen(
+                                onBackPressed = {
+                                    homeViewModel.setIntent(HomeIntent.ChangeTypeContent(MediaType.MOVIE))
+                                },
+                                onDetail = { contentType, id ->
+                                    rootNavController?.navigate(DetailScreen(contentType, id))
+                                }
+                            )
                         }
                     }
                 }

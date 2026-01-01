@@ -28,7 +28,7 @@ internal class MovieComponent : Component()
 internal class TVComponent : Component()
 internal class HomeComponent : Component()
 
-val movieModule = module {
+private val movieModule = module {
     component { MovieComponent() }
     scope<MovieComponent> {
         viewModelOf(::MovieViewModel)
@@ -39,7 +39,7 @@ val movieModule = module {
     }
 }
 
-val tvModule = module {
+private val tvModule = module {
     component { TVComponent() }
     scope<TVComponent> {
         viewModelOf(::TVViewModel)

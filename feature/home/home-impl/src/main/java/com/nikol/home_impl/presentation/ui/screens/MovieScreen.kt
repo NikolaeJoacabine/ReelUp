@@ -15,7 +15,7 @@ import com.nikol.di.scope.viewModelWithRouter
 import com.nikol.home_impl.domain.parameters.Period
 import com.nikol.home_impl.presentation.mvi.intent.MovieIntent
 import com.nikol.home_impl.presentation.mvi.state.MovieState
-import com.nikol.home_impl.presentation.ui.comonents.ContentSection
+import com.nikol.ui.component.ContentSection
 import com.nikol.home_impl.presentation.ui.comonents.PeriodSelector
 import com.nikol.home_impl.presentation.viewModel.MovieRouter
 import com.nikol.home_impl.presentation.viewModel.MovieViewModel

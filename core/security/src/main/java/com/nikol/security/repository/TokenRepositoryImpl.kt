@@ -7,6 +7,10 @@ import com.nikol.security.model.SessionState
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 internal class TokenRepositoryImpl(
     private val keyStoreManager: KeyStoreManager,
@@ -47,7 +51,7 @@ internal class TokenRepositoryImpl(
 
             !guestEnc.isNullOrBlank() && !guestExpire.isNullOrBlank() -> {
                 val decrypted = keyStoreManager.decrypt(guestEnc)
-                if (decrypted.isNotBlank()) {
+                if (decrypted.isNotBlank() && !isSessionExpired(guestExpire)) {
                     SessionState.Guest(decrypted, guestExpire)
                 } else {
                     SessionState.None
@@ -55,6 +59,21 @@ internal class TokenRepositoryImpl(
             }
 
             else -> SessionState.None
+        }
+    }
+
+    private fun isSessionExpired(expiresAt: String): Boolean {
+        return try {
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss 'UTC'")
+
+            val expiryInstant = LocalDateTime.parse(expiresAt, formatter)
+                .atZone(ZoneId.of("UTC"))
+                .toInstant()
+
+            val now = Instant.now()
+            now.isAfter(expiryInstant)
+        } catch (_: Exception) {
+            true
         }
     }
 }

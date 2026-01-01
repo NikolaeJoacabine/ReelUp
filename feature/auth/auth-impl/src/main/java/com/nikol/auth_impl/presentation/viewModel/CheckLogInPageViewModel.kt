@@ -43,6 +43,7 @@ class CheckLogInPageViewModel(
                 )
             }
             catch {
+                Log.d("Auth", "error")
                 navigate { toStart() }
             }
         }
