@@ -4,10 +4,11 @@ import com.nikol.auth_impl.presentation.di.authModule
 import com.nikol.detail_impl.presentation.di.detailModule
 import com.nikol.home_impl.presentation.di.homeModule
 import com.nikol.network.di.networkModule
+import com.nikol.search_impl.presentation.di.searchModule
 import com.nikol.security.di.securityModule
 import org.koin.dsl.module
 
 val mainModule = module {
     includes(networkModule, securityModule)
-    includes(authModule, homeModule, detailModule)
+    includes(authModule, homeModule, detailModule, searchModule)
 }

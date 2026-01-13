@@ -72,13 +72,12 @@ fun ContentDetailDomain.toUi(): DetailContent {
         releaseYear = year,
         genres = this.genres.toImmutableList(),
 
-        // Поля, которые мы вычислили:
         metaInfo = metaString,
         runtimeText = runtimeFormatted,
-        statusText = this.status, // Напрямую из Domain (например, "Released")
+        statusText = this.status,
         productionLogos = logos,
 
-        cast = this.cast.map { it.toUi() }.toImmutableList(),
+        cast = this.cast.map { it.toUi() }.take(10).toImmutableList(),
         trailers = this.trailers.map { it.toUi() }.toImmutableList(),
         recommendations = this.recommendations.map { it.toUiContent() }.toImmutableList(),
         seasons = seasonsList,
@@ -100,7 +99,7 @@ fun VideoDomain.toUi() = VideoUi(key = key, name = name)
 fun SeasonDomain.toUi() = SeasonUi(
     id = id,
     title = name,
-    episodeCount = "$episodeCount Episodes",
+    episodeCount = episodeCount,
     posterUrl = posterUrl
 )
 

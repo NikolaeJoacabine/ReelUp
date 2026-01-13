@@ -15,7 +15,7 @@ import com.nikol.auth_api.Auth
 import com.nikol.nav_impl.navApi.MainFeatureApi
 import com.nikol.nav_impl.navApi.RootFeatureApi
 import com.nikol.reelup.navigation.mainGraph
-import com.nikol.reelup.ui.theme.ReelUpTheme
+import com.nikol.ui.theme.ReelUpTheme
 import org.koin.android.ext.android.getKoin
 
 class MainActivity : ComponentActivity() {

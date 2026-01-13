@@ -17,6 +17,7 @@ dependencies {
     implementation(projects.core.network)
     implementation(projects.core.viewModel)
     implementation(projects.core.di)
+    implementation(projects.core.ui)
     implementation(projects.core.security)
 
     implementation(projects.feature.auth.authImpl)
@@ -25,6 +26,8 @@ dependencies {
     implementation(projects.feature.home.homeImpl)
     implementation(projects.feature.detail.detailApi)
     implementation(projects.feature.detail.detailImpl)
+    implementation(projects.feature.search.searchApi)
+    implementation(projects.feature.search.searchImpl)
 
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.kotlinx.serialization.json)

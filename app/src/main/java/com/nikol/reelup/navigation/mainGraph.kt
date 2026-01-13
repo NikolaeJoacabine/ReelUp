@@ -2,9 +2,9 @@ package com.nikol.reelup.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
@@ -25,22 +25,15 @@ import androidx.navigation.compose.rememberNavController
 import com.nikol.home_api.destination.HomeGraph
 import com.nikol.nav_impl.commonDestination.MainGraph
 import com.nikol.nav_impl.navApi.MainFeatureApi
-import kotlinx.serialization.Serializable
-
-@Serializable
-data object SearchGraph
-
-@Serializable
-data object ProfileGraph
+import com.nikol.search_api.SearchGraph
 
 enum class MainTab(
     val route: Any,
     val title: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector
 ) {
-    Home(HomeGraph, "Home", androidx.compose.material.icons.Icons.Default.Home),
-    Search(SearchGraph, "Search", androidx.compose.material.icons.Icons.Default.Search),
-    Profile(ProfileGraph, "Profile", androidx.compose.material.icons.Icons.Default.Person)
+    Home(HomeGraph, "Home", Icons.Rounded.Home),
+    Search(SearchGraph, "Search", Icons.Rounded.Search),
 }
 
 fun NavGraphBuilder.mainGraph(
@@ -101,14 +94,6 @@ fun NavGraphBuilder.mainGraph(
                         rootNavController,
                         modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
                     )
-                }
-
-                composable<SearchGraph> {
-                    Text("Search")
-                }
-
-                composable<ProfileGraph> {
-                    Text("Profile")
                 }
             }
         }

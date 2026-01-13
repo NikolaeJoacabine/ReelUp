@@ -1,4 +1,4 @@
-package com.nikol.reelup.ui.theme
+package com.nikol.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

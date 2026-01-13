@@ -106,5 +106,15 @@ class DetailViewModel(
                 setState { copy(showBottomSheet = !showBottomSheet) }
             }
         }
+
+        setup<DetailIntent.SeeTriller> {
+            filter { uiState.value.state is SingleState.Success }
+            handleConsistently {
+                val content = (uiState.value.state as SingleState.Success).content
+                content.trailers.firstOrNull()?.let { video ->
+                    setEffect { DetailEffect.SeeTrailerOnYouTube(video.key) }
+                }
+            }
+        }
     }
 }

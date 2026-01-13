@@ -97,9 +97,12 @@ fun HeaderSection(content: DetailContent, scrollState: ScrollState) {
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = content.title, style = MaterialTheme.typography.headlineSmall.copy(
+                    text = content.title,
+                    style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.Bold, color = Color.White
-                    ), maxLines = 2, overflow = TextOverflow.Ellipsis
+                    ),
+                    maxLines = 4,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -118,14 +121,6 @@ fun HeaderSection(content: DetailContent, scrollState: ScrollState) {
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = content.genres.take(3).joinToString(" • "),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.White.copy(alpha = 0.8f),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
             }
         }
     }
@@ -160,3 +155,4 @@ private fun HeaderInfoBadge(
         }
     }
 }
+

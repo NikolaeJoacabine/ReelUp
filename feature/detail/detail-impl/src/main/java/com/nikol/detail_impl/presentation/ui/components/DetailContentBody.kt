@@ -35,7 +35,8 @@ fun DetailContentBody(
     onRefresh: () -> Unit,
     onMore: () -> Unit,
     clickDetail: (detailScreen: DetailScreen) -> Unit,
-    toggleInfo: () -> Unit
+    toggleInfo: () -> Unit,
+    clickSeeTrailer: () -> Unit
 ) {
     val scrollState = rememberScrollState()
 
@@ -58,47 +59,56 @@ fun DetailContentBody(
                 PrimaryActionsRow(
                     isFavorite = content.isFavorite,
                     onToggleFavorite = { },
-                    onPlayTrailer = { },
-                    onMore = onMore
+                    onPlayTrailer = clickSeeTrailer,
+                    onMore = onMore,
+                    trailerEnable = content.trailers.isNotEmpty()
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                SectionTitle(stringResource(R.string.detail_storyline))
-                var isOverflowing by remember { mutableStateOf(false) }
 
-                Text(
-                    text = content.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
-                    lineHeight = 22.sp,
-                    maxLines = if (content.showAllDescription) Int.MAX_VALUE else 4,
-                    overflow = TextOverflow.Ellipsis,
-                    onTextLayout = {
-                        if (!content.showAllDescription) {
-                            isOverflowing = it.hasVisualOverflow
+                if (content.description.isNotEmpty()) {
+                    SectionTitle(stringResource(R.string.detail_storyline))
+                    var isOverflowing by remember { mutableStateOf(false) }
+
+                    Text(
+                        text = content.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.85f),
+                        lineHeight = 22.sp,
+                        maxLines = if (content.showAllDescription) Int.MAX_VALUE else 4,
+                        overflow = TextOverflow.Ellipsis,
+                        onTextLayout = {
+                            if (!content.showAllDescription) {
+                                isOverflowing = it.hasVisualOverflow
+                            }
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .animateContentSize()
+                    )
+
+                    if (isOverflowing || content.showAllDescription) {
+                        TextButton(
+                            onClick = toggleInfo,
+                            modifier = Modifier.padding(start = 8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(if (content.showAllDescription) R.string.detail_show_less else R.string.detail_show_more)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Icon(
+                                imageVector = if (content.showAllDescription) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
                         }
-                    },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .animateContentSize()
-                )
-
-                if (isOverflowing || content.showAllDescription) {
-                    TextButton(
-                        onClick = toggleInfo,
-                        modifier = Modifier.padding(start = 8.dp)
-                    ) {
-                        Text(
-                            text = stringResource(if (content.showAllDescription) R.string.detail_show_less else R.string.detail_show_more)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Icon(
-                            imageVector = if (content.showAllDescription) Icons.Rounded.KeyboardArrowUp else Icons.Rounded.KeyboardArrowDown,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
                     }
+                }
+
+                if (content.genres.isNotEmpty()) {
+                    SectionTitle("Жанры")
+                    GenreFlowSection(genres = content.genres)
                 }
 
                 if (content.seasons.isNotEmpty()) {
@@ -122,7 +132,7 @@ fun DetailContentBody(
                         verticalAlignment = Alignment.CenterVertically,
                         contentPadding = PaddingValues(horizontal = 16.dp)
                     ) {
-                        items(content.cast.take(10)) { person ->
+                        items(content.cast) { person ->
                             PersonItem(person)
                         }
                         item {

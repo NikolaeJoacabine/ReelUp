@@ -31,7 +31,8 @@ fun PrimaryActionsRow(
     isFavorite: Boolean,
     onToggleFavorite: () -> Unit,
     onPlayTrailer: () -> Unit,
-    onMore: () -> Unit
+    onMore: () -> Unit,
+    trailerEnable: Boolean
 ) {
     Row(
         modifier = Modifier
@@ -45,7 +46,8 @@ fun PrimaryActionsRow(
                 .weight(1f)
                 .height(56.dp),
             shape = MaterialTheme.shapes.large,
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            enabled = trailerEnable
         ) {
             Icon(Icons.Rounded.PlayArrow, null)
             Spacer(Modifier.width(8.dp))

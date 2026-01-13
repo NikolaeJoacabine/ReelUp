@@ -12,6 +12,8 @@
     <string name="detail_see_all">See all</string>
     <string name="detail_recommendations">You may also like</string>
     <string name="detail_back">Back</string>
+    <string name="detail_episodes">Episodes</string>
+    <string name="detail_genres">Genres</string>
 
     <!-- Actions Sheet (BottomSheet) -->
     <string name="sheet_actions_title">Actions</string>

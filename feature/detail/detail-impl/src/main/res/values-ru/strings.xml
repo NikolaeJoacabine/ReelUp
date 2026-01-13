@@ -12,8 +12,11 @@
     <string name="detail_see_all">Все</string>
     <string name="detail_recommendations">Вам может понравиться</string>
     <string name="detail_back">Назад</string>
+    <string name="detail_episodes">Серий</string>
+    <string name="detail_genres">Жанры</string>
 
     <!-- Лист действий (BottomSheet) -->
+    <string name="sheet_actions_title">Действия</string>
     <string name="sheet_rate_title">Оценить на TMDB</string>
     <string name="sheet_rate_desc">Поделитесь своим мнением с сообществом</string>
     <string name="sheet_watchlist_title">В список серий</string>

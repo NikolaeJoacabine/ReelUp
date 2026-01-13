@@ -1,17 +1,31 @@
 package com.nikol.detail_impl.presentation.ui.screens
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import android.content.Intent
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nikol.detail_api.DetailScreen
 import com.nikol.detail_impl.R
+import com.nikol.detail_impl.presentation.mvi.effect.DetailEffect
 import com.nikol.detail_impl.presentation.mvi.intent.DetailIntent
 import com.nikol.detail_impl.presentation.ui.components.DetailActionsSheet
 import com.nikol.detail_impl.presentation.ui.components.DetailContentBody
@@ -33,8 +47,23 @@ fun DetailScreenUi(
             override fun toContent(detailScreen: DetailScreen) = onDetail(detailScreen)
         }
     }
-
+    val context = LocalContext.current
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is DetailEffect.SeeTrailerOnYouTube -> {
+                    val intent =
+                        Intent(
+                            Intent.ACTION_VIEW,
+                            "https://www.youtube.com/watch?v=${effect.key}".toUri()
+                        )
+                    context.startActivity(intent)
+                }
+            }
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -66,7 +95,8 @@ fun DetailScreenUi(
                         onRefresh = { viewModel.setIntent(DetailIntent.Update) },
                         onMore = { viewModel.setIntent(DetailIntent.ToggleAction) },
                         clickDetail = { viewModel.setIntent(DetailIntent.NavigateOtherDetail(it)) },
-                        toggleInfo = { viewModel.setIntent(DetailIntent.ToggleDescription) }
+                        toggleInfo = { viewModel.setIntent(DetailIntent.ToggleDescription) },
+                        clickSeeTrailer = { viewModel.setIntent(DetailIntent.SeeTriller) }
                     )
 
                     if (state.showBottomSheet) {

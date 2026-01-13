@@ -1,4 +1,4 @@
-package com.nikol.reelup.ui.theme
+package com.nikol.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

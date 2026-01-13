@@ -104,7 +104,7 @@ fun RatingBadge(
     }
 }
 
-internal fun getRatingColor(rating: Double): Color {
+fun getRatingColor(rating: Double): Color {
     return when {
         rating >= 7.0 -> Color(0xFF21D07A)
         rating >= 5.0 -> Color(0xFFFFC107)

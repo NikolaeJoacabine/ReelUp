@@ -48,8 +48,12 @@ internal fun provideHttpClient() =
         install(Resources)
 
         install(Logging) {
-            logger = Logger.ANDROID
-            level = LogLevel.ALL
+            if (BuildConfig.DEBUG) {
+                level = LogLevel.BODY
+                logger = Logger.ANDROID
+            } else {
+                level = LogLevel.NONE
+            }
         }
 
         install(HttpRequestRetry) {

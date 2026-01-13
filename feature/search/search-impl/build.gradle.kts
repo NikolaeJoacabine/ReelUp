@@ -2,8 +2,9 @@ plugins {
     alias(libs.plugins.reelup.android.feature)
 }
 
+
 android {
-    namespace = "com.nikol.auth_impl"
+    namespace = "com.nikol.search_impl"
 }
 
 dependencies {
@@ -11,9 +12,9 @@ dependencies {
     implementation(projects.core.security)
     implementation(projects.core.network)
     implementation(projects.core.di)
-    implementation(projects.core.ui)
     implementation(projects.core.navigation.navApi)
     implementation(projects.core.navigation.navImpl)
-    implementation(projects.feature.auth.authApi)
+    implementation(projects.feature.detail.detailApi)
+    implementation(projects.feature.search.searchApi)
     implementation(projects.core.viewModel)
 }

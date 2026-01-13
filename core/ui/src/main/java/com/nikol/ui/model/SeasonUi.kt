@@ -6,6 +6,6 @@ import androidx.compose.runtime.Immutable
 data class SeasonUi(
     val id: Int,
     val title: String,       // "Season 1"
-    val episodeCount: String, // "8 Episodes"
+    val episodeCount: Int,
     val posterUrl: String?
 )
